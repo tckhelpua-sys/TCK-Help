@@ -1,5 +1,5 @@
 // service-worker.js
-const CACHE_NAME = 'my-site-cache-v1'; // поменяй при обновлениях
+const CACHE_NAME = 'my-site-cache-v3'; // поменяй при обновлениях
 const ASSETS = [
   '/',
   '/index.html',
