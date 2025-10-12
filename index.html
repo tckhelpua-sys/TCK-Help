@@ -1844,5 +1844,12 @@ button:active .icon-lines span { display:block; width:18px; height:3.5px; backgr
 })();
 </script>
 
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js')
+    .then(reg => console.log('✅ Service Worker зареєстровано:', reg.scope))
+    .catch(err => console.error('❌ Помилка реєстрації SW:', err));
+}
+</script>	
 </body>
 </html>
