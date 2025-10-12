@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ТЦК Help — довідник</title>
+<style>
+  :root{
+    --bg:#071428;
+    --card:#0f1724;
+    --muted:#a8b3c7;
+    --accent:#1e90ff;
+    --accent-2:#173f6f;
+    --white:#eef6ff;
+    --glass: rgba(255,255,255,0.03);
+    --focus: rgba(30,144,255,0.18);
+    --highlight: #fff176;
+  }
+
+  header{
+    display:flex;
+    gap:16px;
+    align-items:center;
+    margin-bottom:20px;
+  }
+  .logo{
+    height:56px;
+    width:56px;
+    border-radius:10px;
+    background:var(--glass);
+    display:flex;align-items:center;justify-content:center;
+    padding:6px;
+    flex-shrink:0;
+  }
+  .logo img{height:62px; width:auto; display:block; border-radius:6px;}
+  h1{margin:0;font-size:20px;color:var(--accent);letter-spacing:0.2px}
+  .subtitle{color:var(--muted); font-size:13px; margin-top:3px}
+
+  .controls{
+    margin-top:14px;
+    display:flex;
+    gap:12px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+
+  .search{
+    flex:1;
+    display:flex;
+    gap:8px;
+    align-items:center;
+    min-width:180px;
+  }
+  .search input{
+    width:100%;
+    background:var(--card);
+    border:1px solid rgba(255,255,255,0.03);
+    color:var(--white);
+    padding:10px 12px;
+    border-radius:10px;
+    font-size:14px;
+    outline:none;
+    transition:box-shadow .18s, border-color .18s;
+  }
+  .search input:focus{ box-shadow:0 6px 20px var(--focus); border-color:var(--accent); }
+
+  .search .count{
+    color:var(--muted);
+    font-size:13px;
+    padding-left:8px;
+    white-space:nowrap;
+  }
+
+  .container{
+    margin-top:18px;
+    display:grid;
+    gap:12px;
+    grid-template-columns: 1fr;
+  }
+
+  /* accordion card */
+  .card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 12px;
+    overflow: visible;
+    transition: box-shadow .18s, transform .12s;
+  }
+  .card:hover{ transform: translateY(-4px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+  .card-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    cursor:pointer;
+    user-select:none;
+    padding:6px;
+    border-radius:10px;
+    transition: background .16s, box-shadow .16s;
+  }
+  /* hover/focus background for better interactivity */
+  .card-header:hover,
+  .card-header:focus-within{
+    background: rgba(30,144,255,0.06);
+    outline: none;
+  }
+  .card-header:focus{ outline: none; box-shadow: 0 6px 20px var(--focus); border-radius:10px; }
+  .title{
+    font-weight:600;
+    color:var(--white);
+    font-size:16px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .title-text { display:inline-block; vertical-align:middle; }
+  .meta{ color:var(--muted); font-size:13px; margin-top:8px }
+  .meta-text { display:inline-block; }
+
+  /* new chevron icon using unicode (rotates on open) */
+  .chev{
+    width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,0.02);
+    transition: transform .25s, background .18s;
+    flex-shrink:0;
+  }
+  .chev .chev-icon{
+    display:inline-block;
+    font-size:18px;
+    line-height:1;
+    color:var(--accent);
+    transform-origin:center;
+    transition: transform .25s, color .18s;
+    user-select:none;
+  }
+
+  .card.open .chev{
+    background: linear-gradient(90deg,var(--accent) 0%, var(--accent-2) 100%);
+  }
+  .card.open .chev .chev-icon{ transform: rotate(90deg); color: white; }
+
+  /* animated panel (we manipulate inline height via JS) */
+  .panel{
+    margin-top:12px;
+    overflow:hidden;
+    transition: height .36s cubic-bezier(.2,.9,.2,1), opacity .24s;
+    height:0;
+    opacity:0;
+  }
+  .card.open .panel{ opacity:1; }
+
+  /* steps */
+  .steps{ display:flex; flex-direction:column; gap:8px; margin-top:6px; }
+  .step{
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+    border-radius:10px;
+    padding:10px;
+    border:1px solid rgba(255,255,255,0.03);
+  }
+  .step-title{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    cursor:pointer;
+  }
+  .step-title:focus{ outline:none; box-shadow: 0 6px 18px var(--focus); border-radius:8px; }
+  .step-short{ color: var(--white); font-weight:600; font-size:14px; display:inline-block; }
+  /* step toggle now contains icon + label */
+  .step-toggle{
+    color: var(--accent); font-size:13px; left-padding-t:8px; display:flex;align-items:center;gap:8px;
+    white-space:nowrap;
+  }
+  .step-toggle .step-icon{
+    display:inline-block;
+    font-size:13px;
+    line-height:1;
+    transform-origin:center;
+    transition: transform .22s ease;
+    user-select:none;
+  }
+  .step.open .step-title .step-icon{ transform: rotate(90deg); }
+
+  .step-detail{
+    margin-top:6px;
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.45;
+    overflow:hidden;
+    transition: height .32s ease, opacity .24s;
+    height:0;
+    opacity:0;
+    white-space: pre-wrap;
+  }
+  .step.open .step-detail{ opacity:1; }
+
+  pre.fulltext{
+    margin:0;
+    white-space:pre-wrap;
+    font-family:inherit;
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.6;
+  }
+
+  /* search highlight */
+  mark.search-hit {
+    background: var(--highlight);
+    color: #000;
+    padding: 0 2px;
+    border-radius:2px;
+    display:inline-block;
+  }
+
+  /* law highlight / badge (will appear when you add class="law" to spans) */
+  .law{
+    color:#93c5fd;
+    font-weight:600;
+    position:relative;
+    padding-left:26px;
+  }
+  .law::before{
+    content: "⚖️";
+    position:absolute;
+    left:0;
+    top:0;
+    transform: translateY(0.6px);
+    font-size:14px;
+  }
+
+  /* small screens adjustments */
+  @media (max-width:720px){
+    body{ padding:14px; font-size:15px; }
+    .logo{ height:48px; width:48px }
+    .title{ font-size:15px }
+    pre.fulltext{ font-size:15.5px }
+    .step-detail{ font-size:15.5px; line-height:1.65; }
+    .steps{ gap:12px; }
+    .step{ padding:12px; }
+    .chev{ width:40px; height:40px; }
+  }
+
+  /* visible focus ring for keyboard users */
+  :focus {
+    outline: none;
+  }
+  .focus-ring {
+    box-shadow: 0 6px 20px var(--focus);
+    border-radius:8px;
+  }
+
+  /* subtle transition for header icons */
+  .title svg { transition: transform .18s ease; }
+
+  /* ensure highlighted content inside pre keeps whitespace */
+  pre.fulltext mark.search-hit { display:inline; }
+
+
+/* === Override для чорного тексту і фону як у Дія === */
+html, body {
+  height: 100%;
+  min-height: 100vh;
+  margin: 0;
+  background-color: #E7F7EF !important;
+  background-image: linear-gradient(180deg, #E7F7EF 0%, #D1F0D9 50%, #C0E7CE 100%) !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+  color: #000000 !important;
+  font-family: 'e-Ukraine', Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+* {
+  color: #000000 !important;
+}
+
+/* Updated search block styling */
+.search {
+  flex: 1;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 180px;
+  background: #ffffff !important;
+  border: 2px solid var(--accent) !important;
+  border-radius: 10px !important;
+  padding: 6px 10px !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.search input {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #000000 !important;
+}
+.search .count {
+  color: #000000 !important;
+  font-weight: 500;
+}
+
+</style>
+
+<!-- Arrow icon styles: ensure visible in WebView and browsers -->
+<style>
+/* Make sure existing text arrows are hidden if replaced by SVG */
+.chev .chev-icon, .step-toggle .step-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  line-height: 1;
+  vertical-align: middle;
+  color: var(--accent, #1e90ff);
+}
+
+/* SVG inside icons inherit color */
+.chev .chev-icon svg, .step-toggle .step-icon svg {
+  width: 1em;
+  height: 1em;
+  display: block;
+  fill: currentColor;
+}
+
+/* Slight spacing for step labels */
+.step-toggle .step-label { margin-left: 6px; }
+
+/* Ensure chevrons are visible on light bg */
+.chev .chev-icon { color: var(--accent, #1e90ff); }
+
+/* Rotation transition */
+.chev .chev-icon, .step-toggle .step-icon { transition: transform .22s ease, color .18s; }
+
+/* Open states rotate svg */
+.card.open .chev .chev-icon svg { transform: rotate(90deg); }
+.step.open .step-toggle .step-icon svg { transform: rotate(90deg); }
+
+/* If original text arrow remains, hide it visually when svg inserted */
+.chev .chev-icon[data-has-svg="true"]::after,
+.step-toggle .step-icon[data-has-svg="true"]::after {
+  content: "";
+  display: none;
+}
+</style>
+
+
+<!-- Visual block highlights for better Android readability -->
+<style>
+/* Stronger, high-contrast card visuals for Android */
+.card {
+  position: relative; /* for the left accent */
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06) !important;
+  border-radius: 12px !important;
+  padding: 14px 14px 14px 20px !important; /* extra left padding for accent */
+  transition: transform .12s, box-shadow .18s !important;
+}
+
+/* Decorative accent stripe on the left of each card */
+.card::before{
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+/* Space out cards a bit more */
+.container { gap: 18px !important; }
+
+/* Make card header area clearer and not overlapping the accent */
+.card .card-header { padding-left: 6px !important; }
+
+/* Steps: make each step visually distinct */
+.step {
+  background: #fbfffb !important;
+  border: 1px solid rgba(0,0,0,0.06) !important;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.04) !important;
+  border-radius: 10px !important;
+  padding: 12px !important;
+}
+
+/* Slight separation between steps */
+.steps { gap: 10px !important; }
+.step + .step { margin-top: 6px; }
+
+/* Make step titles more readable on Android (darker and bolder) */
+.step-short { color: #000000 !important; font-weight:700 !important; }
+
+/* Ensure pre blocks remain readable with a subtle background */
+pre.fulltext {
+  background: transparent !important;
+  color: var(--muted) !important;
+  padding: 0 !important;
+}
+
+/* Make chevron background clearer on light cards */
+.chev {
+  background: rgba(0,0,0,0.03) !important;
+  border-radius: 8px !important;
+}
+
+/* Slightly larger click targets on mobile */
+@media (max-width:720px){
+  .card { padding: 12px 12px 12px 18px !important; border-radius:10px !important; }
+  .card::before { width: 5px; border-top-left-radius:10px; border-bottom-left-radius:10px; }
+  .step { padding: 10px !important; }
+  .chev { width:44px; height:44px; }
+}
+
+/* Accessibility: higher contrast focus ring visible on Android */
+.focus-ring { box-shadow: 0 8px 30px rgba(30,144,255,0.18) !important; }
+
+/* Preserve existing transitions but ensure visibility */
+.card:hover { transform: translateY(-3px) !important; box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important; }
+</style>
+
+
+<!-- Force all text to be black -->
+<style>
+html, body, body *,
+h1, h2, h3, h4, h5, h6,
+p, pre, span, div,
+a, li, button, input, textarea {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important; /* for WebView forcing */
+}
+</style>
+
+
+<!-- Search input styling -->
+<style>
+#searchInput {
+  background: #ffffff !important;          
+  border: 2px solid var(--accent) !important;  
+  border-radius: 8px !important;           
+  padding: 10px 12px !important;
+  font-size: 15px !important;
+  color: #000000 !important;               
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+#searchInput::placeholder {
+  color: #444 !important;
+}
+</style>
+
+
+<!-- FORCE hide by default for float-search-nav -->
+<style id="float-search-nav-default-hide">
+  #float-search-nav { display: none !important; }
+</style>
+
+
+<style>
+.icon-lines {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+.icon-lines span { display:block; width:18px; height:3.5px; background-color:#000; border-radius:2px; transition:all 0.2s ease; }
+.icon-lines.tight span {
+  margin: 2px 0;
+}
+.icon-lines.loose span {
+  margin: 4px 0;
+}
+button:active .icon-lines span { display:block; width:18px; height:3.5px; background-color:#000; border-radius:2px; transition:all 0.2s ease; }
+</style>
+
+<style>
+#float-search-nav button {
+  background: #f8fbff !important;
+  color: var(--accent) !important;
+  border: 2px solid var(--accent) !important;
+  border-radius: 8px !important;
+  width: 42px !important;
+  height: 42px !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 20px !important;
+  cursor: pointer !important;
+  transition: transform 0.15s ease !important;
+}
+#float-search-nav button:active {
+  transform: scale(0.92);
+}
+</style>
+
+<style id="open-close-press-style">
+/* Press/tap visual effect for openAllBtn and closeAllBtn */
+#openAllBtn, #closeAllBtn {
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+#openAllBtn.pressed, #closeAllBtn.pressed,
+#openAllBtn:active, #closeAllBtn:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+}
+#openAllBtn .icon-lines span, #closeAllBtn .icon-lines span {
+  transition: background-color 0.12s ease, transform 0.12s ease;
+}
+#openAllBtn.pressed .icon-lines span,
+#closeAllBtn.pressed .icon-lines span,
+#openAllBtn:active .icon-lines span,
+#closeAllBtn:active .icon-lines span {
+  background-color: #333 !important;
+  transform: scaleX(0.98);
+}
+</style>
+
+</head>
+<body>
+
+<!-- Font size controls (collapsible) -->
+<div id="font-controls" aria-label="Font size controls" role="toolbar" style="position:fixed; top:15px; right:8px; z-index:2147483647; pointer-events:none;">
+  <button id="font-toggle" aria-label="Розгорнути керування шрифтом" title="Розгорнути керування шрифтом"
+    style="width:36px;height:36px;border-radius:50%;border:none;background:#ffffffcc;color:#000;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.12);pointer-events:auto;">
+    A
+  </button>
+  <div id="font-controls-panel" style="display:none; margin-top:6px; flex-direction:column; gap:8px; pointer-events:auto; background:transparent;">
+    <button id="font-increase" aria-label="Збільшити шрифт" title="Збільшити шрифт" 
+      style="width:38px;height:38px;border-radius:8px;border:none;background:#ffffffcc;color:#000;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.12);pointer-events:auto;">A+</button>
+    <button id="font-reset" aria-label="Скинути шрифт" title="Скинути шрифт" 
+      style="width:38px;height:38px;border-radius:8px;border:none;background:#ffffffcc;color:#000;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.12);pointer-events:auto;">A</button>
+    <button id="font-decrease" aria-label="Зменшити шрифт" title="Зменшити шрифт" 
+      style="width:38px;height:38px;border-radius:8px;border:none;background:#ffffffcc;color:#000;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.12);pointer-events:auto;">A-</button>
+  </div>
+</div>
+
+
+<header>
+  <div class="logo">
+      <img src="images/logo.png" alt="ТЦК Help">
+  </div>
+  <div>
+    <h1>ТЦК Help</h1>
+    <div class="subtitle">Довідник: як взаємодіяти з ТЦК </div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="search" role="search" aria-label="Швидкий пошук">
+    <input id="search" placeholder="Пошук..." aria-label="Пошук по довіднику" />
+    <div class="count" id="searchCount" aria-live="polite">Показано: всі</div> 
+
+  <div style="display:flex;gap:8px;align-items:center;">
+    <button id="openAllBtn" aria-label="Відкрити всі" title="Відкрити всі" style="background:#fff;border:2px solid var(--accent);color:var(--accent);width:42px;height:42px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,0.1);"><div class="icon-lines loose"><span></span><span></span><span></span></div></button>
+    <button id="closeAllBtn" aria-label="Згорнути всі" title="Згорнути всі" style="background:#fff;border:2px solid var(--accent);color:var(--accent);width:42px;height:42px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,0.1);"><div class="icon-lines tight"><span></span><span></span><span></span></div></button>
+  </div>
+</div>
+
+<main class="container" id="cards" aria-live="polite">
+  <!-- Сценарій -->
+  <section class="card" data-title="Сценарій — Зупинка на вулиці" data-id="card-1">
+    <div class="card-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-card-1" data-role="card-toggle">
+      <div>
+        <div class="title"><span class="title-text">Сценарій — Зупинка на вулиці</span>
+
+</div>
+        <div class="meta"><span class="meta-text">Алгоритм дій громадянина при перевірці військово-облікових документів поліцією та ТЦК</span></div>
+      </div>
+      <div class="chev" aria-hidden="true" title="Розгорнути / Згорнути">
+        <span class="chev-icon" aria-hidden="true">⯈</span>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-card-1" aria-hidden="true">
+      <div class="steps">
+
+        <div class="step" data-step-id="1-1">
+          <div class="step-title" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-1-1">
+            <div class="step-short">Крок 1. Зупинка та перевірка документів</div>
+            <div class="step-toggle" aria-hidden="false"><span class="step-icon" aria-hidden="true">⯈</span><span class="step-label">Показати</span></div>
+          </div>
+          <div class="step-detail" id="detail-1-1" aria-hidden="true">
+<pre class="fulltext">     Поліція має право зупинити особу та вимагати документи, що посвідчують особу.
+<span class="law">Норма</span>: ст. 32 Закону «Про Національну поліцію».
+     Чоловіки віком від 18 до 60 років зобов’язані мати при собі військово-обліковий документ (у паперовій або електронній формі) та пред’являти його:
+        • представнику ТЦК,
+        • поліцейському,
+        • представнику Держприкордонслужби (у прикордонній смузі, контрольованому районі, пунктах пропуску).
+Відповідно до п. 25 Постанови КМУ № 560.</pre>
+          </div>
+        </div>
+
+        <div class="step" data-step-id="1-2">
+          <div class="step-title" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-1-2">
+            <div class="step-short">Крок 2. Вимагайте посвідчення від ТЦК та поліції</div>
+            <div class="step-toggle" aria-hidden="false"><span class="step-icon" aria-hidden="true">⯈</span><span class="step-label">Показати</span></div>
+          </div>
+          <div class="step-detail" id="detail-1-2" aria-hidden="true">
+<pre class="fulltext">     Поліцейський зобов’язаний назвати прізвище, посаду, спеціальне звання та пред’явити службове посвідчення (не віддаючи його з рук).
+<span class="law">Норма</span>: ч. 3 ст. 18 Закону «Про Національну поліцію».
+     Представник ТЦК зобов’язаний назвати прізвище, ім’я, по батькові, посаду та пред’явити службове посвідчення особи, уповноваженої вручати повістки, разом із паспортом/офіцерським посвідченням/військовим квитком.
+<span class="law">Норма</span>: п. 54 Постанови КМУ № 560.
+     Перевіряти документи можуть лише уповноважені особи, визначені наказом (розпорядженням) військового коменданта. Ви маєте право вимагати такий наказ.
+     Ви маєте право вимагати пред'явлення службового посвідчення.
+<span class="law">Норма</span>: Постанова КМУ № 1137 (про зразок службового посвідчення).
+Військовий квиток не є службовим посвідченням і не підтверджує повноважень перевіряти документи.
+     Якщо особа у балаклаві → вимагайте ідентифікації та звірки фото в посвідченні зі списком у розпорядженні військового коменданта.
+     Перелік підстав для перевірки документів визначено у п. 7 Постанови КМУ № 1456. Представники ТЦК не входять до переліку уповноважених осіб для перевірки документів (п. 5 Постанови № 1456).
+     Якщо представники ТЦК:
+        • не пред’являють документи,
+        • поводяться неадекватно,
+        • вимагають паспортні дані без повноважень → телефонуйте 102.
+    Поліція повинна зафіксувати ситуацію на бодікамеру як доказ ваших законних дій.</pre>
+          </div>
+        </div>
+
+        <div class="step" data-step-id="1-3">
+          <div class="step-title" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-1-3">
+            <div class="step-short">Крок 3. Звірка даних</div>
+            <div class="step-toggle" aria-hidden="false"><span class="step-icon" aria-hidden="true">⯈</span><span class="step-label">Показати</span></div>
+          </div>
+          <div class="step-detail" id="detail-1-3" aria-hidden="true">
+<pre class="fulltext">     Звірка проводиться з Єдиним державним реєстром призовників, військовозобов’язаних та резервістів.
+<span class="law">Норми</span>: ст. 33 Закону «Про військовий обов’язок і військову службу», Постанова КМУ № 1487.
+     Використання сторонніх баз (наприклад, «Оберіг») може бути оскаржено у суді.</pre>
+          </div>
+        </div>
+
+        <div class="step" data-step-id="1-4">
+          <div class="step-title" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-1-4">
+            <div class="step-short">Крок 4. Вручення повістки</div>
+            <div class="step-toggle" aria-hidden="false"><span class="step-icon" aria-hidden="true">⯈</span><span class="step-label">Показати</span></div>
+          </div>
+          <div class="step-detail" id="detail-1-4" aria-hidden="true">
+<pre class="fulltext">      Підстави:
+        • відсутність військово-облікового документа,
+        • не став на облік,
+        • не уточнив дані протягом 60 днів,
+        • не з’явився за попередньою повісткою.
+     Якщо ви відмовлятесь підписати повістку → складається акт відмови (підписують не менше двох членів групи оповіщення). Копію акта вам повинні надати.
+<span class="law">Норма</span>: п. 54 Постанови КМУ № 560.</pre>
+          </div>
+        </div>
+
+        <div class="step" data-step-id="1-5">
+          <div class="step-title" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-1-5">
+            <div class="step-short">Крок 5. Затримання і доставлення</div>
+            <div class="step-toggle" aria-hidden="false"><span class="step-icon" aria-hidden="true">⯈</span><span class="step-label">Показати</span></div>
+          </div>
+          <div class="step-detail" id="detail-1-5" aria-hidden="true">
+<pre class="fulltext">      Лише поліція має право затримати особу у разі відмови прослідувати до ТЦК.
+<span class="law">Норма</span>: ст. 263 КУпАП.
+     Адміністративне затримання:
+        • строк — не більше 3 годин,
+        • складається протокол із зазначенням: дати, місця, даних про затриманого, мотивів затримання.
+        • протокол підписує посадова особа і затриманий (у разі відмови робиться відмітка).
+        • про затримання повідомляють родичів та, на прохання, роботодавця.
+        • органи інформують центри з надання безоплатної правової допомоги.
+     Права при затриманні:
+        • право на адвоката,
+        • право не давати пояснень.
+<span class="law">Норми</span>: ст. 261–263 КУпАП, ст. 63 Конституції України.
+      Дії ТЦК та поліції можна оскаржити у суді.</pre>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Сценарій -->
+  <section class="card" data-title="Сценарій — Зупинка транспортного засобу" data-id="card-2">
+    <div class="card-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-card-2" data-role="card-toggle">
+      <div>
+        <div class="title"><span class="title-text">Сценарій — Зупинка транспортного засобу</span>
+
+</div>
+        <div class="meta"><span class="meta-text">Алгоритм дій громадянина при зупинці транспортного засобу для перевірки військово-облікових документів поліцією та ТЦК</span></div>
+      </div>
+      <div class="chev" aria-hidden="true"><span class="chev-icon" aria-hidden="true">⯈</span></div>
+    </div>
+
+    <div class="panel" id="panel-card-2" aria-hidden="true">
+      <div class="steps">
+        <div class="step" data-step-id="2-1">
+          <div class="step-title" role="Button" tabindex="0" aria-expanded="false" aria-controls="detail-2-1">
+            <div class="step-short">Крок 1. Підстави для зупинки авто</div>
+            <div class="step-toggle"><span class="step-icon" aria-hidden="true">⯈</span><span class="step-label">Показати</span></div>
+          </div>
+          <div class="step-detail" id="detail-2-1" aria-hidden="true">
+<pre class="fulltext">     Залишайтеся спокійним — не сперечайтесь агресивно.
+     Поліція має право зупиняти транспортні засоби лише з підстав, передбачених ст. 35 Закону України «Про Національну поліцію», а представники ТЦК та СП взагалі не мають прав для зупинки транспортного засобу
+     Поліцейський зобов’язаний повідомити водія про конкретну причину зупинки (ч. 3 ст. 35).
+     Найчастіше на блокпостах посилаються на п. 7 ст. 35 Закону, а саме: «якщо уповноважений орган державної влади ухвалив рішення про обмеження чи заборону руху.»
+    Такою правовою підставою є Постанови Кабінету Міністрів № 1455 та № 1456, які передбачають тимчасове обмеження руху та облаштування блокпостів / контрольних пунктів під час воєнного стану.
+     Саме вони є підґрунтям для зупинки авто на блокпостах.
+    Тож, вимагайте від поліцейського:
+    • назвати причину зупинки відповідно до ч. 3 ст. 35 Закону про Нацполіцію,
+    • пред’явити службове посвідчення (ч. 3 ст. 18).</pre>
+          </div>
+        </div>
+
+        <div class="step" data-step-id="2-2">
+          <div class="step-title" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-2-2">
+            <div class="step-short">Крок 2. Визначення законності блокпоста</div>
+            <div class="step-toggle"><span class="step-icon" aria-hidden="true">⯈</span><span class="step-label">Показати</span></div>
+          </div>
+          <div class="step-detail" id="detail-2-2" aria-hidden="true">
+<pre class="fulltext">  Блокпост — посилений контрольно-пропускний пункт, який за рішенням військового командування тимчасово встановлюється на вході/виході (в’їзді/виїзді) на територію/з території, де введено воєнний стан і встановлено особливий режим (за винятком державного кордону), на якому облаштовуються місця для перевірки осіб, транспортних засобів, багажу та вантажів, позиції вогневих засобів та бойової техніки, місця для відпочинку та забезпечення життєдіяльності особового складу, який виконує завдання на такому пункті, до складу якого можуть входити службові особи військових формувань та правоохоронних органів, які відповідно до закону залучені до здійснення заходів правового режиму воєнного стану (відповідно по п.3 Постанови КМУ № 1456).
+       "Мобільний блокпост" у законодавстві України відсутній. Це самодіяльність поліції чи ТЦК.
+     Якщо блокпост не створений на підставі наказу військового командування, він є незаконним, а отже, й зупинка автомобіля за п. 7 ст. 35 Закону буде неправомірною.
+      Тож, запитайте, на підставі якого наказу військового командування встановлений саме цей блокпост.
+     Якщо наказу немає → Ви можете повідомити уповноважену особу, що не вважаєте таку зупинку правомірною.
+     У разі тиску, погроз чи перевищення повноважень — телефонуйте 102 і вимагайте фіксації інциденту на бодікамеру.</pre>
+          </div>
+        </div>
+
+        <div class="step" data-step-id="2-3">
+          <div class="step-title" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-2-3">
+            <div class="step-short">Крок 3. Звірка даних</div>
+            <div class="step-toggle"><span class="step-icon" aria-hidden="true">⯈</span><span class="step-label">Показати</span></div>
+          </div>
+          <div class="step-detail" id="detail-2-3" aria-hidden="true">
+<pre class="fulltext">  Звірка проводиться з Єдиним державним реєстром призовників, військовозобов’язаних та резервістів.
+Відповідно до ст. 33 Закону «Про військовий обов’язок і військову службу», Постанова КМУ № 1487.
+    Використання сторонніх баз (наприклад, «Оберіг») може бути оскаржено у суді.</pre>
+          </div>
+        </div>
+
+        <div class="step" data-step-id="2-4">
+          <div class="step-title" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-2-4">
+            <div class="step-short">Крок 4. Вручення повістки</div>
+            <div class="step-toggle"><span class="step-icon" aria-hidden="true">⯈</span><span class="step-label">Показати</span></div>
+          </div>
+          <div class="step-detail" id="detail-2-4" aria-hidden="true">
+<pre class="fulltext">      Підстави:
+        • відсутність військово-облікового документа,
+        • не став на облік,
+        • не уточнив дані протягом 60 днів,
+        • не з’явився за попередньою повісткою.
+     Якщо ви відмовлятесь підписати повістку → складається акт відмови (підписують не менше двох членів групи оповіщення). Копію акта вам повинні надати.
+<span class="law">Норма</span>: п. 54 Постанови КМУ № 560.</pre>
+          </div>
+        </div>
+
+        <div class="step" data-step-id="2-5">
+          <div class="step-title" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-2-5">
+            <div class="step-short">Крок 5. Затримання і доставлення</div>
+            <div class="step-toggle"><span class="step-icon" aria-hidden="true">⯈</span><span class="step-label">Показати</span></div>
+          </div>
+          <div class="step-detail" id="detail-2-5" aria-hidden="true">
+<pre class="fulltext">      Лише поліція має право затримати особу у разі відмови прослідувати до ТЦК.
+Відповідно до ст. 263 КУпАП.
+     Адміністративне затримання:
+        • строк — не більше 3 годин,
+        • складається протокол із зазначенням: дати, місця, даних про затриманого, мотивів затримання.
+        • протокол підписує посадова особа і затриманий (у разі відмови робиться відмітка).
+        • про затримання повідомляють родичів та, на прохання, роботодавця.
+        • органи інформують центри з надання безоплатної правової допомоги.
+     Права при затриманні:
+        • право на адвоката,
+        • право не давати пояснень.
+Відповідно до ст. 261–263 КУпАП, ст. 63 Конституції України.
+      Дії ТЦК та поліції можна оскаржити у суді.</pre>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Сценарій -->
+  <section class="card" data-title="Сценарій — Перевірка військово-облікових документів під час перетину державного кордону" data-id="card-3">
+    <div class="card-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-card-3" data-role="card-toggle">
+      <div>
+        <div class="title"><span class="title-text">Сценарій — Перевірка військово-облікових документів під час перетину державного кордону</span>
+
+</div>
+        <div class="meta"><span class="meta-text">Дії та повноваження прикордонників та ТЦК на пунктах пропуску</span></div>
+      </div>
+      <div class="chev" aria-hidden="true"><span class="chev-icon" aria-hidden="true">⯈</span></div>
+    </div>
+
+    <div class="panel" id="panel-card-3" aria-hidden="true">
+      <div class="steps">
+
+        <div class="step" data-step-id="3-1">
+          <div class="step-title" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-3-1">
+            <div class="step-short">Крок 1. Перевірка документів</div>
+            <div class="step-toggle"><span class="step-icon" aria-hidden="true">⯈</span><span class="step-label">Показати</span></div>
+          </div>
+          <div class="step-detail" id="detail-3-1" aria-hidden="true">
+<pre class="fulltext">     Прикордонники (Державна прикордонна служба України) діють на підставі частини 4 статті 20  «Про правовий режим воєнного стану» та мають право перевіряти документи, що посвідчують особу та перевіряти військово-облікові документи у чоловіків 18–60 років
+    Представники ТЦК на пунктах пропуску не мають повноважень вручати повістки.
+      Це чітко випливає з п. 5 Постанови КМУ № 1456, де визначено перелік уповноважених осіб, які можуть перевіряти документи.
+      Якщо ТЦК все ж намагається вручити повістку на кордоні → такі дії є перевищенням повноважень.</pre>
+          </div>
+        </div>
+
+        <div class="step" data-step-id="3-2">
+          <div class="step-title" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-3-2">
+            <div class="step-short">Крок 2. Звірка даних</div>
+            <div class="step-toggle"><span class="step-icon" aria-hidden="true">⯈</span><span class="step-label">Показати</span></div>
+          </div>
+          <div class="step-detail" id="detail-3-2" aria-hidden="true">
+<pre class="fulltext">     Звірка проводиться з Єдиним державним реєстром призовників, військовозобов’язаних та резервістів.
+<span class="law">Норми</span>: ст. 33 Закону «Про військовий обов’язок і військову службу», Постанова КМУ № 1487.
+Використання сторонніх баз (наприклад, «Оберіг») може бути оскаржено у суді.</pre>
+          </div>
+        </div>
+
+        <div class="step" data-step-id="3-3">
+          <div class="step-title" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-3-3">
+            <div class="step-short">Крок 3. Дії прикордонників у разі виявлення порушень</div>
+            <div class="step-toggle"><span class="step-icon" aria-hidden="true">⯈</span><span class="step-label">Показати</span></div>
+          </div>
+          <div class="step-detail" id="detail-3-3" aria-hidden="true">
+<pre class="fulltext">      Якщо особа не має військово-облікового документа або є підозра у порушенні обов’язків військового обліку, прикордонники можуть:
+        1) скласти відповідні матеріали;
+        2) передати інформацію до територіального ТЦК за місцем проживання.
+      Примусово доставляти особу до ТЦК прикордонники не мають права.
+      Право на адміністративне затримання і доставлення до ТЦК має лише поліція, і лише на строк до 3 годин. (ст. 262, 263 Кодексу України про адміністративні правопорушення)</pre>
+          </div>
+        </div>
+
+        <div class="step" data-step-id="3-4">
+          <div class="step-title" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-3-4">
+            <div class="step-short">Крок 4. Практика</div>
+            <div class="step-toggle"><span class="step-icon" aria-hidden="true">⯈</span><span class="step-label">Показати</span></div>
+          </div>
+          <div class="step-detail" id="detail-3-4" aria-hidden="true">
+<pre class="fulltext">Що можуть зробити прикордонники на практиці
+    • відмовити у перетині кордону, якщо документи не відповідають вимогам (наприклад, відсутній військовий квиток).
+    • скласти адміністративний матеріал (протокол) у разі порушення прикордонного режиму.
+    • передати інформацію про вас до територіального ТЦК за місцем реєстрації.
+    Якщо прикордонники кажуть: «Ми вас передамо у ТЦК» → вимагайте посилання на закон, який дає їм таке право.
+    Якщо вас намагаються силоміць передати представникам ТЦК — це перевищення повноважень, яке можна оскаржити (заява до поліції + скарга в суд).
+    У разі конфлікту — телефонуйте 102 та наполягайте на фіксації дій прикордонників чи ТЦК.</pre>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Сценарій -->
+  <section class="card" data-title="Сценарій — Виклик до ТЦК (повістка поштою або телефонний дзвінок)" data-id="card-4">
+    <div class="card-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-card-4" data-role="card-toggle">
+      <div>
+        <div class="title"><span class="title-text">Сценарій — Виклик до ТЦК (повістка поштою або телефонний дзвінок)</span>
+
+</div>
+        <div class="meta"><span class="meta-text">Інструкція — як діяти при отриманні повістки</span></div>
+      </div>
+      <div class="chev" aria-hidden="true"><span class="chev-icon" aria-hidden="true">⯈</span></div>
+    </div>
+
+    <div class="panel" id="panel-card-4" aria-hidden="true">
+      <div class="steps">
+
+        <div class="step" data-step-id="4-1">
+          <div class="step-title" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-4-1">
+            <div class="step-short">Повістка відправляється як рекомендований лист</div>
+            <div class="step-toggle"><span class="step-icon" aria-hidden="true">⯈</span><span class="step-label">Показати</span></div>
+          </div>
+          <div class="step-detail" id="detail-4-1" aria-hidden="true">
+<pre class="fulltext">   Повістка відправляється як рекомендований лист, який вручається одержувачу під підпис.
+    Варіанти дій, якщо отримали повістку
+    У військовозобов'язаного, який отримав повістку поштою і розписався за неї, є три основні варіанти поведінки:</pre>
+          </div>
+        </div>
+
+        <div class="step" data-step-id="4-2">
+          <div class="step-title" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-4-2">
+            <div class="step-short">Варіант 1: Неявка до ТЦК</div>
+            <div class="step-toggle"><span class="step-icon" aria-hidden="true">⯈</span><span class="step-label">Показати</span></div>
+          </div>
+          <div class="step-detail" id="detail-4-2" aria-hidden="true">
+<pre class="fulltext">      Наслідки:
+        • повторне надсилання повістки.
+        • складання протоколу про порушення мобілізаційного законодавства (ст. 210-1 КУпАП).
+        • штраф
+        • подання в адміністративний розшук
+        • адміністративне затримання поліцією і доставлення до ТЦК</pre>
+          </div>
+        </div>
+
+        <div class="step" data-step-id="4-3">
+          <div class="step-title" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-4-3">
+            <div class="step-short">Варіант 2: З'явитися до ТЦК</div>
+            <div class="step-toggle"><span class="step-icon" aria-hidden="true">⯈</span><span class="step-label">Показати</span></div>
+          </div>
+          <div class="step-detail" id="detail-4-3" aria-hidden="true">
+<pre class="fulltext">      Дії: розписатися на Укрпошті за рекомендований лист (повістку) та з'явитися у вказаний час.
+      Наслідки: якщо є бронювання або підстави для відстрочки, ТЦК актуалізує дані і більше не турбуватиме
+      Наслідки за відсутності відповідних підстав:
+        • направлення на Військово-лікарську комісію (ВЛК).
+        • ухилення від проходження ВЛК призведе до штрафу, адмінрозшуку та доставлення до ТЦК.
+        • якщо ВЛК визнає придатним буде видано мобілізаційне розпорядження.</pre>
+          </div>
+        </div>
+
+        <div class="step" data-step-id="4-4">
+          <div class="step-title" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-4-4">
+            <div class="step-short">Варіант 3: Відтермінування візиту</div>
+            <div class="step-toggle"><span class="step-icon" aria-hidden="true">⯈</span><span class="step-label">Показати</span></div>
+          </div>
+          <div class="step-detail" id="detail-4-4" aria-hidden="true">
+<pre class="fulltext">   Увага: відмова від отримання листа на пошті призведе до тих самих наслідків, що й ігнорування (Варіант 1) — протокол, штраф та розшук.
+    Відтермінування можливе лише за наявності поважних причин неявки, визначених постановою п. 23 КМУ № 560.
+    Поважними причинами неприбуття громадянина у строк, визначений у повістці, які підтверджені документами відповідних уповноважених державних органів, установ та організацій (державної та комунальної форми власності), визнаються:
+перешкода стихійного характеру, хвороба громадянина, воєнні дії на відповідній території та їх наслідки або інші обставини, які позбавили його можливості особисто прибути у визначені пункт і строк;
+смерть його близького родича (батьків, дружини (чоловіка), дитини, рідних брата, сестри, діда, баби) або близького родича його дружини (чоловіка).
+     Єдина практична причина: хвороба громадянина (перебування на лікарняному, госпіталізація, реабілітація після операції) за наявності документального підтвердження.
+     Дії при відтермінуванні: протягом трьох днів з моменту отримання повістки необхідно проінформувати ТЦК про поважну причину.
+     Наслідки: повістка не скасовується, а лише відтерміновується. Після закінчення дії поважної причини (наприклад, закриття лікарняного) все одно необхідно з'явитися до ТЦК.
+     Телефонний дзвінок не є повісткою і не створює для громадянина юридичного обов’язку з’явитися.
+     Неявка після телефонного дзвінка не тягне адміністративної чи кримінальної відповідальності.
+     Відповідальність може настати лише у випадку неявки без поважних причин після вручення повістки в установленому законом порядку.
+    </pre>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Декларація правового статусу -->
+  <section class="card" data-title="Декларація свого правового статусу" data-id="card-5">
+    <div class="card-header" role="button" tabindex="0" aria-expanded="false" aria-controls="panel-card-5" data-role="card-toggle">
+      <div>
+        <div class="title"><span class="title-text">Декларація свого правового статусу</span>
+
+</div>
+        <div class="meta"><span class="meta-text">Текст заяви і пояснення </span></div>
+      </div>
+      <div class="chev" aria-hidden="true"><span class="chev-icon" aria-hidden="true">⯈</span></div>
+    </div>
+
+    <div class="panel" id="panel-card-5" aria-hidden="true">
+      <div class="steps">
+
+        <div class="step" data-step-id="5-1">
+          <div class="step-title" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-5-1">
+            <div class="step-short">Пояснення і текст декларації</div>
+            <div class="step-toggle"><span class="step-icon" aria-hidden="true">⯈</span><span class="step-label">Показати</span></div>
+          </div>
+          <div class="step-detail" id="detail-5-1" aria-hidden="true">
+<pre class="fulltext">   Представники ТЦК зазвичай аргументують свої дії тим, що кожен громадянин України має конституційний обов’язок захищати Батьківщину (ст. 65 Конституції України).
+    Однак у міжнародному праві людина визнається самостійним суб’єктом правових відносин, незалежно від того, в якій країні вона перебуває і чи має громадянство.
+    Саме тому деякі громадяни використовують заяву про правосуб’єктність, щоб підкреслити:
+    • що вони є Людьми з міжнародно визнаним правовим статусом,
+    • що їхні права та свободи гарантовані не лише Конституцією України, але й міжнародними договорами, які мають юридичну силу (ст. 9 Конституції України),
+    • що будь-яке втручання у їхні права повинно відбуватися лише в межах закону і міжнародних стандартів прав людини.
+    Така заява не звільняє від відповідальності та не скасовує обов’язків (важливо), але вона може бути використана як юридична позиція громадянина, щоб зафіксувати його бачення правового статусу та показати, що він знає свої права.
+      Доброго дня!
+	Я, Людина з повними правами на ім’я ..., заявляю про свій статус Людини як суб’єкта правових відносин у нашій комунікації. Це ґрунтується на положеннях «Загальної декларації прав людини» (ООН, 1948 рік, чинна редакція на сайті Верховної Ради України), зокрема статті 6:
+«Кожна людина, де б вона не перебувала, має право на визнання її правосуб’єктності».
+	Також посилаюся на «Міжнародний пакт про громадянські і політичні права» (ООН, 1966 рік, чинна редакція на сайті Верховної Ради України), статтю 16:
+«Кожна людина, де б вона не перебувала, має право на визнання її правосуб’єктності».
+	Таким чином, я спілкуюся з вами саме у статусі Людини — а не як «фізична особа», не як «громадянин України» і не як «особа» у вузько-правовому значенні.
+Я забороняю вважати мене фізичною особою чи громадянином України та вимагаю:
+    • поважати, охороняти й захищати мої права Людини;
+    • зазначати в усіх реєстрах і документах мій правовий статус як «Людина»;
+    • надати відповідь, у якій ви визнаєте, що моя правосуб’єктність — це статус Людини, що я перебуваю у міжнародно-правовому статусі та є суб’єктом міжнародного права.</pre>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/*
+  Модифікований JS:
+  - зберігає/відновлює стан в localStorage
+  - плавні відкриття (height calc) — як раніше
+  - делегування подій
+  - debounced пошук з підсвіткою знайдених слів (mark.search-hit)
+  - не змінює текст у <pre class="fulltext"> (оригінал зберігається в dataset.orig)
+*/
+
+(function(){
+  const container = document.getElementById('cards');
+  const searchInput = document.getElementById('search');
+  const searchCount = document.getElementById('searchCount');
+  const STORAGE_KEY = 'osn_state_v1';
+
+  // restore state or initialize
+  let state = { openCards: {}, openSteps: {}, query: '' };
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) state = JSON.parse(raw);
+  } catch(e){ /* ignore parse errors */ }
+
+  // utility: save state
+  function saveState(){
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+  }
+
+  // utils for smooth height transition
+  function openPanel(panel){
+    if (!panel) return;
+    panel.style.display = 'block';
+    const startHeight = panel.getBoundingClientRect().height;
+    panel.style.height = '0px';
+    panel.style.opacity = '1';
+    // force reflow
+    panel.getBoundingClientRect();
+    const target = panel.scrollHeight;
+    panel.style.transition = 'height .36s cubic-bezier(.2,.9,.2,1), opacity .24s';
+    panel.style.height = target + 'px';
+    function cleanup(){
+      panel.style.height = 'auto';
+      panel.removeEventListener('transitionend', cleanup);
+    }
+    panel.addEventListener('transitionend', cleanup);
+    panel.setAttribute('aria-hidden', 'false');
+  }
+
+  function closePanel(panel){
+    if (!panel) return;
+    const start = panel.getBoundingClientRect().height;
+    panel.style.height = start + 'px';
+    // force reflow
+    panel.getBoundingClientRect();
+    panel.style.transition = 'height .28s cubic-bezier(.2,.9,.2,1), opacity .18s';
+    panel.style.height = '0px';
+    panel.style.opacity = '0';
+    function finalize(){
+      panel.style.display = '';
+      panel.removeEventListener('transitionend', finalize);
+      panel.style.height = '';
+      panel.style.opacity = '';
+    }
+    panel.addEventListener('transitionend', finalize);
+    panel.setAttribute('aria-hidden', 'true');
+  }
+
+  // helpers for escaping / regex
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, function(m){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[m];
+    });
+  }
+  function escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+  // highlight matches in titles/meta/pre
+  function highlightMatches(query){
+    const q = (query || '').trim();
+    const tokens = q === '' ? [] : q.split(/\s+/).map(t => escapeRegExp(t)).filter(Boolean);
+    const pattern = tokens.length ? tokens.join('|') : null;
+    const re = pattern ? new RegExp(`(${pattern})`, 'gi') : null;
+
+    // Titles
+    document.querySelectorAll('.title-text').forEach(el=>{
+      const orig = el.dataset.orig !== undefined ? el.dataset.orig : (el.dataset.orig = el.textContent);
+      if(!re){
+        el.textContent = orig;
+      } else {
+        const escaped = escapeHtml(orig);
+        const replaced = escaped.replace(re, '<mark class="search-hit">$1</mark>');
+        el.innerHTML = replaced;
+      }
+    });
+
+    // Meta
+    document.querySelectorAll('.meta-text').forEach(el=>{
+      const orig = el.dataset.orig !== undefined ? el.dataset.orig : (el.dataset.orig = el.textContent);
+      if(!re){
+        el.textContent = orig;
+      } else {
+        const escaped = escapeHtml(orig);
+        const replaced = escaped.replace(re, '<mark class="search-hit">$1</mark>');
+        el.innerHTML = replaced;
+      }
+    });
+
+    // fulltext (pre)
+    document.querySelectorAll('pre.fulltext').forEach(el=>{
+      // store original text exactly once
+      const orig = el.dataset.orig !== undefined ? el.dataset.orig : (el.dataset.orig = el.textContent);
+      if(!re){
+        // restore original with preserved spacing
+        el.textContent = orig;
+      } else {
+        // escape html then insert <mark> tags
+        const escaped = escapeHtml(orig);
+        // Note: keep newlines; innerHTML with <mark> works together with pre and white-space: pre-wrap
+        const replaced = escaped.replace(re, '<mark class="search-hit">$1</mark>');
+        el.innerHTML = replaced;
+      }
+    });
+  }
+
+  // initialize stored originals for titles/meta/fulltext
+  function initOriginals(){
+    document.querySelectorAll('.title-text, .meta-text').forEach(el=>{
+      if(el.dataset.orig === undefined) el.dataset.orig = el.textContent;
+    });
+    document.querySelectorAll('pre.fulltext').forEach(el=>{
+      if(el.dataset.orig === undefined) el.dataset.orig = el.textContent;
+    });
+  }
+
+  // initialize panels based on saved state - but only if matching ID exists
+  function initFromState(){
+    document.querySelectorAll('.card').forEach(card=>{
+      const id = card.getAttribute('data-id');
+      const header = card.querySelector('[data-role="card-toggle"]');
+      const panel = card.querySelector('.panel');
+      if(state.openCards && state.openCards[id]){
+        card.classList.add('open');
+        header.setAttribute('aria-expanded', 'true');
+        openPanel(panel);
+      } else {
+        card.classList.remove('open');
+        header.setAttribute('aria-expanded', 'false');
+        closePanel(panel);
+      }
+
+      // steps
+      card.querySelectorAll('.step').forEach(step=>{
+        const stepId = step.getAttribute('data-step-id');
+        const title = step.querySelector('.step-title');
+        const detail = step.querySelector('.step-detail');
+        const label = title.querySelector('.step-label');
+        if(state.openSteps && state.openSteps[stepId]){
+          step.classList.add('open');
+          title.setAttribute('aria-expanded','true');
+          if(label) label.textContent = 'Приховати';
+          openPanel(detail);
+        } else {
+          step.classList.remove('open');
+          title.setAttribute('aria-expanded','false');
+          if(label) label.textContent = 'Показати';
+          closePanel(detail);
+        }
+      });
+    });
+
+    if(state.query){
+      searchInput.value = state.query;
+      performFilter(state.query, false);
+    } else {
+      updateSearchCount();
+    }
+  }
+
+  // event delegation for clicks
+  container.addEventListener('click', (e) => {
+    const cardToggle = e.target.closest('[data-role="card-toggle"]');
+    if(cardToggle && container.contains(cardToggle)){
+      const card = cardToggle.closest('.card');
+      toggleCard(card, true);
+      return;
+    }
+    const stepTitle = e.target.closest('.step-title');
+    if(stepTitle && container.contains(stepTitle)){
+      const step = stepTitle.closest('.step');
+      toggleStep(step, true);
+      return;
+    }
+  });
+
+  // keyboard interactions via delegation
+  container.addEventListener('keydown', (e) => {
+    const tgt = e.target;
+    if (tgt.matches('[data-role="card-toggle"]') || tgt.closest('[data-role="card-toggle"]')) {
+      const header = tgt.closest('[data-role="card-toggle"]');
+      if(!header) return;
+      const card = header.closest('.card');
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        toggleCard(card, true);
+      } else if(e.key === 'ArrowDown'){
+        e.preventDefault();
+        focusNextFocus(header);
+      } else if(e.key === 'ArrowUp'){
+        e.preventDefault();
+        focusPrevFocus(header);
+      } else if(e.key === 'Escape'){
+        closeCard(card, true);
+      }
+    } else if (tgt.matches('.step-title') || tgt.closest('.step-title')) {
+      const title = tgt.closest('.step-title');
+      const step = title.closest('.step');
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        toggleStep(step, true);
+      } else if(e.key === 'Escape'){
+        closeStep(step, true);
+      } else if(e.key === 'ArrowDown'){
+        e.preventDefault();
+        focusNextFocus(title);
+      } else if(e.key === 'ArrowUp'){
+        e.preventDefault();
+        focusPrevFocus(title);
+      }
+    }
+  });
+
+  // focus helpers
+  function getAllFocusable(){
+    return Array.from(container.querySelectorAll('[data-role="card-toggle"], .step-title'));
+  }
+  function focusNextFocus(el){
+    const list = getAllFocusable();
+    const idx = list.indexOf(el);
+    if(idx >= 0 && idx < list.length - 1) list[idx+1].focus();
+  }
+  function focusPrevFocus(el){
+    const list = getAllFocusable();
+    const idx = list.indexOf(el);
+    if(idx > 0) list[idx-1].focus();
+  }
+
+  // open/close card functions
+  function toggleCard(card, persist){
+    if(!card) return;
+    const id = card.getAttribute('data-id');
+    if(card.classList.contains('open')){
+      closeCard(card, persist);
+    } else {
+      openCard(card, persist);
+    }
+  }
+  function openCard(card, persist){
+    const header = card.querySelector('[data-role="card-toggle"]');
+    const panel = card.querySelector('.panel');
+    card.classList.add('open');
+    header.setAttribute('aria-expanded', 'true');
+    openPanel(panel);
+    if(persist){
+      state.openCards[card.getAttribute('data-id')] = true;
+      saveState();
+    }
+  }
+  function closeCard(card, persist){
+    const header = card.querySelector('[data-role="card-toggle"]');
+    const panel = card.querySelector('.panel');
+    card.classList.remove('open');
+    header.setAttribute('aria-expanded', 'false');
+    closePanel(panel);
+    if(persist){
+      delete state.openCards[card.getAttribute('data-id')];
+      saveState();
+    }
+  }
+
+  // steps open/close
+  function toggleStep(step, persist){
+    if(!step) return;
+    if(step.classList.contains('open')){
+      closeStep(step, persist);
+    } else {
+      openStep(step, persist);
+    }
+  }
+  function openStep(step, persist){
+    const title = step.querySelector('.step-title');
+    const detail = step.querySelector('.step-detail');
+    step.classList.add('open');
+    title.setAttribute('aria-expanded','true');
+    // update toggle text
+    const toggleLabel = title.querySelector('.step-label');
+    if(toggleLabel) toggleLabel.textContent = 'Приховати';
+    openPanel(detail);
+    if(persist){
+      state.openSteps[step.getAttribute('data-step-id')] = true;
+      saveState();
+    }
+  }
+  function closeStep(step, persist){
+    const title = step.querySelector('.step-title');
+    const detail = step.querySelector('.step-detail');
+    step.classList.remove('open');
+    title.setAttribute('aria-expanded','false');
+    const toggleLabel = title.querySelector('.step-label');
+    if(toggleLabel) toggleLabel.textContent = 'Показати';
+    closePanel(detail);
+    if(persist){
+      delete state.openSteps[step.getAttribute('data-step-id')];
+      saveState();
+    }
+  }
+
+  // Debounce helper
+  function debounce(fn, wait){
+    let t;
+    return function(...args){
+      clearTimeout(t);
+      t = setTimeout(()=> fn.apply(this,args), wait);
+    };
+  }
+
+  // perform filtering by search query (case-insensitive) and highlight matches
+  function performFilter(q, updateState = true){
+    const qnorm = (q || '').trim().toLowerCase();
+    const cards = Array.from(document.querySelectorAll('.card'));
+    let shown = 0;
+    cards.forEach(card=>{
+      // use textContent-based search (includes titles, steps, pre text)
+      const text = card.innerText.toLowerCase();
+      const matches = qnorm === '' || text.includes(qnorm);
+      card.style.display = matches ? '' : 'none';
+      if(matches) shown++;
+    });
+
+    // update search count UI
+    if(qnorm === ''){
+      searchCount.textContent = 'Показано: всі';
+    } else {
+      searchCount.textContent = `Показано: ${shown} результат(ів)`;
+    }
+
+    // highlight matches (only in visible cards — but highlightMatches works on all, that's fine)
+    highlightMatches(qnorm);
+
+    if(updateState){
+      state.query = qnorm;
+      saveState();
+    }
+  }
+
+  const debouncedFilter = debounce(function(e){
+    performFilter(e.target.value, true);
+  }, 200);
+
+  searchInput.addEventListener('input', debouncedFilter);
+
+  // update count if there are no changes
+  function updateSearchCount(){
+    const visible = Array.from(document.querySelectorAll('.card')).filter(c => c.style.display !== 'none').length;
+    searchCount.textContent = visible === document.querySelectorAll('.card').length ? 'Показано: всі' : `Показано: ${visible} результат(ів)`;
+  }
+
+  // set initial state and wire step toggle labels
+  document.addEventListener('DOMContentLoaded', ()=>{
+    // ensure panels hidden initially
+    document.querySelectorAll('.panel').forEach(p=>{
+      p.style.display = '';
+      p.style.height = '0px';
+      p.style.opacity = '0';
+      p.setAttribute('aria-hidden','true');
+    });
+    document.querySelectorAll('.step-detail').forEach(d=>{
+      d.style.display = '';
+      d.style.height = '0px';
+      d.style.opacity = '0';
+      d.setAttribute('aria-hidden','true');
+    });
+
+    // initialize originals for highlighting
+    initOriginals();
+
+    // initialize toggle texts
+    document.querySelectorAll('.step').forEach(step=>{
+      const title = step.querySelector('.step-title');
+      const toggleLabel = title.querySelector('.step-label');
+      if(toggleLabel){
+        toggleLabel.textContent = step.classList.contains('open') ? 'Приховати' : 'Показати';
+      }
+    });
+
+    // restore previous open/closed state and search
+    initFromState();
+
+    // Open first card by default if nothing saved
+    const anyOpen = Object.keys(state.openCards || {}).length > 0;
+    if(!anyOpen){
+      const first = document.querySelector('.card');
+      if(first){
+        openCard(first, true);
+      }
+    }
+
+    // attach focus behaviour: visible ring on keyboard focus
+    document.querySelectorAll('[data-role="card-toggle"], .step-title').forEach(el=>{
+      el.addEventListener('focus', () => el.classList.add('focus-ring'));
+      el.addEventListener('blur', () => el.classList.remove('focus-ring'));
+    });
+
+    // Observe content changes to adjust open panels (for dynamic content)
+    const ro = new ResizeObserver(entries=>{
+      for(const entry of entries){
+        const el = entry.target;
+        if(el.parentElement && el.parentElement.classList.contains('open')){
+          if(getComputedStyle(el).height !== 'auto'){
+            el.style.height = 'auto';
+          }
+        }
+      }
+    });
+    document.querySelectorAll('.panel, .step-detail').forEach(p => ro.observe(p));
+  });
+
+  // expose few helpers to console for debugging (optional)
+  window.__osn = {
+    openCardById(id){
+      const card = document.querySelector(`.card[data-id="${id}"]`);
+      if(card) openCard(card, true);
+    },
+    closeCardById(id){
+      const card = document.querySelector(`.card[data-id="${id}"]`);
+      if(card) closeCard(card, true);
+    },
+    resetState(){
+      state = { openCards: {}, openSteps: {}, query: '' };
+      saveState();
+      location.reload();
+    }
+  };
+
+})();
+
+</script>
+
+
+<script>
+(function(){
+  const STORAGE_KEY = 'app_font_size_px';
+  const MIN = 12, MAX = 32, STEP = 1, DEFAULT = 16;
+
+  function safeInt(v, fallback){ try{ const n=parseInt(v); return isNaN(n)?fallback:n }catch(e){return fallback} }
+  function storageGet(){ try{ return safeInt(localStorage.getItem(STORAGE_KEY), null); }catch(e){ return null; } }
+  function storageSet(v){ try{ localStorage.setItem(STORAGE_KEY, String(v)); return true; }catch(e){ try{ sessionStorage.setItem(STORAGE_KEY, String(v)); return true;}catch(e){} return false; } }
+
+  // Collect base sizes for px-based elements
+  let baseCollected = false;
+  function collectBase(){
+    if(baseCollected) return;
+    try{
+      const all = Array.from(document.querySelectorAll('body *'));
+      for(const el of all){
+        try{
+          const cs = window.getComputedStyle(el);
+          const fs = parseFloat(cs.fontSize);
+          if(!isNaN(fs)) el.dataset.baseFontSize = fs;
+        }catch(e){}
+      }
+      baseCollected = true;
+    }catch(e){}
+  }
+
+  function applySize(px){
+    if(px==null) return;
+    px = Number(px);
+    if(isNaN(px)) return;
+    // Apply to root and body
+    try{
+      document.documentElement.style.setProperty('font-size', px + 'px', 'important');
+      document.body.style.setProperty('font-size', px + 'px', 'important');
+      document.documentElement.style.setProperty('--app-font-size', px + 'px', 'important');
+    }catch(e){
+      document.documentElement.style.fontSize = px + 'px';
+      document.body.style.fontSize = px + 'px';
+    }
+    // Scale px-based elements
+    collectBase();
+    const all = Array.from(document.querySelectorAll('body *'));
+    const factor = px / DEFAULT;
+    for(const el of all){
+      const base = el.dataset.baseFontSize ? parseFloat(el.dataset.baseFontSize) : null;
+      if(base){
+        const newSize = Math.max(10, Math.round(base * factor));
+        try{ el.style.setProperty('font-size', newSize + 'px', 'important'); }catch(e){ el.style.fontSize = newSize + 'px'; }
+      }
+    }
+  }
+
+  function clamp(v){ return Math.max(MIN, Math.min(MAX, v)); }
+
+  function initToolbar(){
+    const toolbar = document.getElementById('font-controls');
+    if(!toolbar) return;
+    toolbar.style.pointerEvents = 'none';
+    const toggle = document.getElementById('font-toggle');
+    const panel = document.getElementById('font-controls-panel');
+    if(toggle && panel){
+      toggle.addEventListener('click', function(e){
+        e.stopPropagation();
+        if(panel.style.display === 'none' || panel.style.display === '') {
+          panel.style.display = 'flex';
+          panel.style.flexDirection = 'column';
+          toolbar.style.zIndex = '2147483647';
+        } else {
+          panel.style.display = 'none';
+        }
+      }, false);
+      // buttons
+      const inc = document.getElementById('font-increase');
+      const dec = document.getElementById('font-decrease');
+      const res = document.getElementById('font-reset');
+      function change(delta){
+        const cur = safeInt(window.getComputedStyle(document.documentElement).fontSize, DEFAULT);
+        const next = clamp(cur + delta);
+        applySize(next);
+        storageSet(next);
+      }
+      if(inc){ inc.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); change(STEP); }, false); inc.addEventListener('touchend', function(e){ e.preventDefault(); e.stopPropagation(); this.click(); }, {passive:false}); }
+      if(dec){ dec.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); change(-STEP); }, false); dec.addEventListener('touchend', function(e){ e.preventDefault(); e.stopPropagation(); this.click(); }, {passive:false}); }
+      if(res){ res.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); applySize(DEFAULT); storageSet(DEFAULT); }, false); res.addEventListener('touchend', function(e){ e.preventDefault(); e.stopPropagation(); this.click(); }, {passive:false}); }
+      // close on outside click
+      document.addEventListener('click', function(){ if(panel) panel.style.display='none'; }, false);
+    }
+  }
+
+  function init(){
+    // init toolbar if present
+    initToolbar();
+    // font init
+    let stored = storageGet();
+    if(stored === null){
+      const comp = window.getComputedStyle(document.documentElement).fontSize;
+      stored = comp ? Math.round(parseFloat(comp)) : DEFAULT;
+    }
+    stored = clamp(stored);
+    collectBase();
+    applySize(stored);
+    storageSet(stored);
+
+    try{
+      const observer = new MutationObserver(function(){
+        const s = storageGet();
+        if(s) applySize(s);
+        if(!document.getElementById('font-controls')) {
+          // re-insert toolbar html if removed
+          const body = document.body || document.documentElement;
+          try{ body.insertAdjacentHTML('afterbegin', arguments.callee.toolbarHTML || ''); }catch(e){}
+        }
+      });
+      observer.observe(document.documentElement, { childList:true, subtree:true, attributes:true });
+    }catch(e){}
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+
+  window.__applyAppFontSize = applySize;
+})();
+</script>
+
+
+<!-- Replace textual arrow characters with inline SVG for reliable rendering in WebView -->
+<script>
+(function(){
+  const arrowSVG = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>';
+  const smallArrowSVG = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>';
+
+  function replaceIcons() {
+    // chev icons
+    document.querySelectorAll('.chev .chev-icon').forEach(function(el){
+      // skip if already replaced
+      if(el.getAttribute('data-has-svg') === 'true') return;
+      // preserve aria-hidden and other attrs
+      const aria = el.getAttribute('aria-hidden');
+      el.innerHTML = arrowSVG;
+      if(aria !== null) el.setAttribute('aria-hidden', aria);
+      el.setAttribute('data-has-svg','true');
+    });
+    // step icons
+    document.querySelectorAll('.step-toggle .step-icon, .step-title .step-icon').forEach(function(el){
+      if(el.getAttribute('data-has-svg') === 'true') return;
+      const aria = el.getAttribute('aria-hidden');
+      el.innerHTML = smallArrowSVG;
+      if(aria !== null) el.setAttribute('aria-hidden', aria);
+      el.setAttribute('data-has-svg','true');
+    });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', replaceIcons);
+  } else {
+    replaceIcons();
+  }
+
+  // observe DOM changes to replace newly added icons
+  try {
+    const obs = new MutationObserver(function(muts){
+      replaceIcons();
+    });
+    obs.observe(document.documentElement, { childList: true, subtree: true });
+  } catch(e){}
+})();
+</script>
+
+
+<!-- Disclaimer block -->
+<div class="disclaimer-card" style="
+  margin-top: 30px;
+  padding: 16px;
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+  background: #ffffff;
+  color: #000;
+  font-size: 14px;
+  line-height: 1.5;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+">
+  ⚖️ <strong>Дисклеймер</strong><br>
+  Цей застосунок має виключно інформаційний та рекомендаційний характер. 
+  Подані матеріали не є юридичною консультацією та не створюють жодних 
+  правових зобов’язань. У разі виникнення складних чи спірних ситуацій 
+  рекомендуємо звернутися за кваліфікованою допомогою до професійного юриста.
+</div>
+
+
+<div id="float-search-nav" aria-hidden="true" style="position:fixed;left:16px;bottom:16px;display:none;flex-direction:column;gap:8px;z-index:2147483640;">
+  <button id="float-prev" aria-label="Попередній" style="width:40px;height:40px;border-radius:10px;border:none;background:var(--accent,#1e90ff);color:#000;display:inline-flex;align-items:center;justify-content:center;">▲</button>
+  <button id="float-next" aria-label="Наступний" style="width:40px;height:40px;border-radius:10px;border:none;background:var(--accent,#1e90ff);color:#000;display:inline-flex;align-items:center;justify-content:center;">▼</button>
+</div>
+
+
+<!-- FLOAT NAV ROBUST VISIBILITY CONTROLLER (inserted) -->
+<script id="float-search-nav-visibility-robust">
+(function(){
+  try{
+    const nav = document.getElementById('float-search-nav');
+    if(!nav) return;
+    const input = document.getElementById('search') 
+               || document.querySelector('input[placeholder*="Пошук"], input[name*="search"], input[type="search"]');
+    if(!input) return;
+
+    const show = ()=>{ nav.style.setProperty('display','inline-flex','important'); nav.setAttribute('aria-hidden','false'); };
+    const hide = ()=>{ nav.style.setProperty('display','none','important'); nav.setAttribute('aria-hidden','true'); };
+
+    const enforce = ()=>{
+      try{
+        const v = (input.value||'').trim();
+        if(v.length>0) show(); else hide();
+      }catch(e){}
+    };
+
+    let pollId = null;
+    const startPoll = ()=>{
+      if(pollId) return;
+      pollId = setInterval(enforce, 180);
+    };
+    const stopPoll = ()=>{
+      if(!pollId) return;
+      clearInterval(pollId);
+      pollId = null;
+    };
+
+    input.addEventListener('input', function(){ enforce(); 
+      if((input.value||'').trim().length>0) startPoll();
+      else stopPoll();
+    }, {passive:true});
+
+    input.addEventListener('keydown', function(){ setTimeout(enforce, 0); startPoll(); setTimeout(stopPoll, 1000); });
+
+    input.addEventListener('compositionstart', function(){ startPoll(); });
+    input.addEventListener('compositionend', function(){ enforce(); setTimeout(stopPoll, 500); });
+
+    const obs = new MutationObserver(function(){ enforce(); });
+    obs.observe(input, { attributes: true, attributeFilter: ['value'] });
+
+    const safety = setInterval(enforce, 1200);
+
+    enforce();
+    window.__floatNavVisibility = { show, hide, enforce, startPoll, stopPoll };
+    window.addEventListener('unload', function(){ stopPoll(); clearInterval(safety); obs.disconnect(); });
+  }catch(err){
+    console && console.warn && console.warn('float-nav-visibility-robust error', err);
+  }
+})();
+</script>
+
+
+<!-- FLOAT NAV BUTTON WIRING: ensure prev/next navigate search hits -->
+<script id="float-nav-button-wires">
+(function(){
+  try{
+    const sels = ['mark.search-hit','mark.hit','span.search-hit','span.highlight','.search-hit','.hit','em.highlight','ins.highlight','mark'];
+    function collectMatches(){
+      let found = [];
+      for(const s of sels){
+        found = Array.from(document.querySelectorAll(s)).filter(el=> el.offsetParent !== null && (el.textContent||'').trim().length>0);
+        if(found.length) break;
+      }
+      // fallback: any visible mark/span with non-empty text
+      if(!found.length){
+        found = Array.from(document.querySelectorAll('mark, span, em, ins')).filter(el => el.offsetParent !== null && (el.textContent||'').trim().length>0);
+      }
+      found.forEach((m,i)=> m.dataset._snIndex = i);
+      return found;
+    }
+
+    let matches = [], current = -1;
+
+    function updateMatchesAndSet(idx){
+      matches = collectMatches();
+      if(matches.length === 0){ current = -1; return; }
+      if(typeof idx === 'number'){
+        current = Math.max(0, Math.min(idx, matches.length-1));
+      } else {
+        if(current < 0 || current >= matches.length) current = 0;
+      }
+      updateActive();
+    }
+    function updateActive(){
+      matches.forEach((m,i)=> m.classList.toggle('search-active', i===current));
+      try{ if(matches[current]) matches[current].scrollIntoView({behavior:'smooth', block:'center'}); }catch(e){}
+      // reposition floating nav if available
+      if(window.__floatNavVisibility && typeof window.__floatNavVisibility.enforce === 'function'){
+        try{ window.__floatNavVisibility.enforce(); }catch(e){} 
+      }
+    }
+    function gotoNext(){ if(matches.length===0) { matches = collectMatches(); if(matches.length===0) return; current = 0; updateActive(); return; } current = (current+1) % matches.length; updateActive(); }
+    function gotoPrev(){ if(matches.length===0) { matches = collectMatches(); if(matches.length===0) return; current = 0; updateActive(); return; } current = (current-1+matches.length) % matches.length; updateActive(); }
+
+    // wire to existing window.__floatingSearchNav if present
+    const prevBtn = document.getElementById('float-prev');
+    const nextBtn = document.getElementById('float-next');
+
+    function safeAdd(el, ev, fn){ if(!el) return; el.addEventListener(ev, fn); }
+
+    // If there is already a floatingSearchNav implementation, use it
+    if(window.__floatingSearchNav && (typeof window.__floatingSearchNav.gotoNext === 'function' || typeof window.__floatingSearchNav.collectMatches === 'function')){
+      safeAdd(prevBtn, 'click', function(e){ e.preventDefault(); try{ window.__floatingSearchNav.collectMatches && window.__floatingSearchNav.collectMatches(); if(window.__floatingSearchNav.gotoPrev) window.__floatingSearchNav.gotoPrev(); else if(window.__floatingSearchNav.gotoNext) { /* fallback */ } }catch(err){} });
+      safeAdd(nextBtn, 'click', function(e){ e.preventDefault(); try{ window.__floatingSearchNav.collectMatches && window.__floatingSearchNav.collectMatches(); if(window.__floatingSearchNav.gotoNext) window.__floatingSearchNav.gotoNext(); }catch(err){} });
+    } else {
+      // Use our internal implementation
+      safeAdd(prevBtn, 'click', function(e){ e.preventDefault(); updateMatchesAndSet(); gotoPrev(); });
+      safeAdd(nextBtn, 'click', function(e){ e.preventDefault(); updateMatchesAndSet(); gotoNext(); });
+    }
+
+    // Also update matches when DOM changes (debounced)
+    let deb;
+    const mo = new MutationObserver(function(){ clearTimeout(deb); deb = setTimeout(function(){ matches = collectMatches(); }, 100); });
+    mo.observe(document.documentElement || document.body, { childList:true, subtree:true, characterData:true });
+
+    // initial collection after load
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', function(){ setTimeout(function(){ matches = collectMatches(); }, 120); });
+    } else {
+      setTimeout(function(){ matches = collectMatches(); }, 120);
+    }
+
+    // expose for debugging
+    window.__floatNavButtons = { collectMatches: collectMatches, gotoNext: gotoNext, gotoPrev: gotoPrev, updateActive: updateActive };
+  }catch(err){ console && console.warn && console.warn('float-nav-button-wires error', err); }
+})();
+</script>
+
+
+<script id="open-close-all-wires">
+(function(){
+  try{
+    function clickIfNotOpen(el, selectorForToggle){
+      if(!el) return;
+      if(!el.classList.contains('open')){
+        const hdr = el.querySelector(selectorForToggle);
+        if(hdr && typeof hdr.click === 'function') hdr.click();
+      }
+    }
+    function clickIfOpen(el, selectorForToggle){
+      if(!el) return;
+      if(el.classList.contains('open')){
+        const hdr = el.querySelector(selectorForToggle);
+        if(hdr && typeof hdr.click === 'function') hdr.click();
+      }
+    }
+
+    const openAll = function(){
+      const cards = Array.from(document.querySelectorAll('.card'));
+      cards.forEach(card => {
+        clickIfNotOpen(card, '[data-role=\"card-toggle\"]');
+        card.querySelectorAll('.step').forEach(step => clickIfNotOpen(step, '.step-title'));
+      });
+      try{ if(window.__osn && typeof window.__osn.openCardById==='function'){ Object.keys(window.__osn.openCardById).forEach(()=>{}); } }catch(e){}
+    };
+    const closeAll = function(){
+      const cards = Array.from(document.querySelectorAll('.card'));
+      cards.forEach(card => {
+        card.querySelectorAll('.step').forEach(step => clickIfOpen(step, '.step-title'));
+        clickIfOpen(card, '[data-role=\"card-toggle\"]');
+      });
+    };
+
+    function wireButtons(){
+      const openBtn = document.getElementById('openAllBtn');
+      const closeBtn = document.getElementById('closeAllBtn');
+      if(openBtn) openBtn.addEventListener('click', function(e){ e.preventDefault(); openAll(); });
+      if(closeBtn) closeBtn.addEventListener('click', function(e){ e.preventDefault(); closeAll(); });
+    }
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', wireButtons);
+    } else {
+      wireButtons();
+    }
+    window.__osn = window.__osn || {};
+    window.__osn.openAll = openAll;
+    window.__osn.closeAll = closeAll;
+  }catch(err){ console && console.warn && console.warn('open-close-all-wires error', err); }
+})();
+</script>
+
+
+<script id="open-close-press-wiring">
+(function(){
+  try{
+    function bindPress(id){
+      const el = document.getElementById(id);
+      if(!el) return;
+      if(el.__pressBound) return;
+      el.__pressBound = true;
+      // touch
+      el.addEventListener('touchstart', function(){ el.classList.add('pressed'); }, {passive:true});
+      el.addEventListener('touchend', function(){ el.classList.remove('pressed'); }, {passive:true});
+      el.addEventListener('touchcancel', function(){ el.classList.remove('pressed'); }, {passive:true});
+      // mouse
+      el.addEventListener('mousedown', function(){ el.classList.add('pressed'); });
+      el.addEventListener('mouseup', function(){ el.classList.remove('pressed'); });
+      el.addEventListener('mouseleave', function(){ el.classList.remove('pressed'); });
+      // keyboard activation (space/enter)
+      el.addEventListener('keydown', function(e){
+        if(e.key === ' ' || e.key === 'Enter'){ el.classList.add('pressed'); }
+      });
+      el.addEventListener('keyup', function(e){
+        if(e.key === ' ' || e.key === 'Enter'){ el.classList.remove('pressed'); }
+      });
+    }
+
+    function wireAll(){
+      bindPress('openAllBtn');
+      bindPress('closeAllBtn');
+    }
+
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', wireAll);
+    } else {
+      wireAll();
+    }
+    // re-wire if DOM changes (in case buttons are replaced)
+    const mo = new MutationObserver(function(){ wireAll(); });
+    mo.observe(document.documentElement || document.body, { childList:true, subtree:true });
+  }catch(e){ console && console.warn && console.warn('open-close-press-wiring', e); }
+})();
+</script>
+
+</body>
+</html>
