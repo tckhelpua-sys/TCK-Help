@@ -556,9 +556,13 @@ button:active .icon-lines span { display:block; width:18px; height:3.5px; backgr
     <div class="count" id="searchCount" aria-live="polite">Показано: всі</div> 
 
   <div style="display:flex;gap:8px;align-items:center;">
-    <button id="openAllBtn" aria-label="Відкрити всі" title="Відкрити всі" style="background:#fff;border:2px solid var(--accent);color:var(--accent);width:42px;height:42px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,0.1);"><div class="icon-lines loose"><span></span><span></span><span></span></div></button>
-    <button id="closeAllBtn" aria-label="Згорнути всі" title="Згорнути всі" style="background:#fff;border:2px solid var(--accent);color:var(--accent);width:42px;height:42px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,0.1);"><div class="icon-lines tight"><span></span><span></span><span></span></div></button>
-  </div>
+  <button id="toggleAllBtn" aria-label="Розгорнути/згорнути всі" title="Розгорнути/згорнути всі"
+    style="background:#fff;border:2px solid var(--accent);color:var(--accent);
+           width:42px;height:42px;border-radius:8px;cursor:pointer;
+           display:inline-flex;align-items:center;justify-content:center;
+           box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+    <div class="icon-lines loose"><span></span><span></span><span></span></div>
+  </button>
 </div>
 
 <main class="container" id="cards" aria-live="polite">
@@ -1769,40 +1773,78 @@ button:active .icon-lines span { display:block; width:18px; height:3.5px; backgr
       }
     }
 
-    const openAll = function(){
-      const cards = Array.from(document.querySelectorAll('.card'));
-      cards.forEach(card => {
-        clickIfNotOpen(card, '[data-role=\"card-toggle\"]');
-        card.querySelectorAll('.step').forEach(step => clickIfNotOpen(step, '.step-title'));
-      });
-      try{ if(window.__osn && typeof window.__osn.openCardById==='function'){ Object.keys(window.__osn.openCardById).forEach(()=>{}); } }catch(e){}
-    };
-    const closeAll = function(){
-      const cards = Array.from(document.querySelectorAll('.card'));
-      cards.forEach(card => {
-        card.querySelectorAll('.step').forEach(step => clickIfOpen(step, '.step-title'));
-        clickIfOpen(card, '[data-role=\"card-toggle\"]');
-      });
-    };
+    const toggleAllBtn = document.getElementById('toggleAllBtn');
+let allOpen = false;
 
-    function wireButtons(){
-      const openBtn = document.getElementById('openAllBtn');
-      const closeBtn = document.getElementById('closeAllBtn');
-      if(openBtn) openBtn.addEventListener('click', function(e){ e.preventDefault(); openAll(); });
-      if(closeBtn) closeBtn.addEventListener('click', function(e){ e.preventDefault(); closeAll(); });
+if (toggleAllBtn) {
+  toggleAllBtn.addEventListener('click', () => {
+    allOpen = !allOpen;
+    toggleAllBtn.classList.add('pressed');
+    setTimeout(() => toggleAllBtn.classList.remove('pressed'), 120);
+
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+      const id = card.getAttribute('data-id');
+      if (allOpen) {
+        if (!card.classList.contains('open')) openCard(card, true);
+        state.openCards[id] = true;
+      } else {
+        if (card.classList.contains('open')) closeCard(card, true);
+        delete state.openCards[id];
+      }
+    });
+    saveState();
+
+    // Змінюємо вигляд "бургерів" (щільний ↔ розслаблений)
+    const iconLines = toggleAllBtn.querySelector('.icon-lines');
+    if (iconLines) {
+      iconLines.className = `icon-lines ${allOpen ? 'tight' : 'loose'}`;
     }
-    if(document.readyState === 'loading'){
-      document.addEventListener('DOMContentLoaded', wireButtons);
-    } else {
-      wireButtons();
+  });
+}
+    function wireButton(){
+  const toggleBtn = document.getElementById('toggleAllBtn');
+  if (!toggleBtn) return;
+
+  let allOpen = false;
+
+  toggleBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    allOpen = !allOpen;
+    toggleBtn.classList.add('pressed');
+    setTimeout(() => toggleBtn.classList.remove('pressed'), 120);
+
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+      const id = card.getAttribute('data-id');
+      if (allOpen) {
+        if (!card.classList.contains('open')) openCard(card, true);
+        state.openCards[id] = true;
+      } else {
+        if (card.classList.contains('open')) closeCard(card, true);
+        delete state.openCards[id];
+      }
+    });
+    saveState();
+
+    const iconLines = toggleBtn.querySelector('.icon-lines');
+    if (iconLines) {
+      iconLines.className = `icon-lines ${allOpen ? 'tight' : 'loose'}`;
     }
-    window.__osn = window.__osn || {};
-    window.__osn.openAll = openAll;
-    window.__osn.closeAll = closeAll;
-  }catch(err){ console && console.warn && console.warn('open-close-all-wires error', err); }
+  });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', wireButton);
+} else {
+  wireButton();
+}
+
+window.__osn = window.__osn || {};
+window.__osn.toggleAll = wireButton;
+}catch(err){ console && console.warn && console.warn('toggle-all-wire error', err); }
 })();
 </script>
-
 
 <script id="open-close-press-wiring">
 (function(){
