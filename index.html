@@ -556,9 +556,11 @@ button:active .icon-lines span { display:block; width:18px; height:3.5px; backgr
     <div class="count" id="searchCount" aria-live="polite">Показано: всі</div> 
 
   <div style="display:flex;gap:8px;align-items:center;">
-    <button id="openAllBtn" aria-label="Відкрити всі" title="Відкрити всі" style="background:#fff;border:2px solid var(--accent);color:var(--accent);width:42px;height:42px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,0.1);"><div class="icon-lines loose"><span></span><span></span><span></span></div></button>
-    <button id="closeAllBtn" aria-label="Згорнути всі" title="Згорнути всі" style="background:#fff;border:2px solid var(--accent);color:var(--accent);width:42px;height:42px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,0.1);"><div class="icon-lines tight"><span></span><span></span><span></span></div></button>
-  </div>
+  <button id="toggleAllBtn" aria-label="Розгорнути / Згорнути всі" title="Розгорнути / Згорнути всі"
+    style="background:#fff;border:2px solid var(--accent);color:var(--accent);width:42px;height:42px;border-radius:8px;
+    cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+    <div class="icon-lines loose"><span></span><span></span><span></span></div>
+  </button>
 </div>
 
 <main class="container" id="cards" aria-live="polite">
@@ -1754,6 +1756,9 @@ button:active .icon-lines span { display:block; width:18px; height:3.5px; backgr
 <script id="open-close-all-wires">
 (function(){
   try{
+    // =============================
+    // 🔹 Вспомогательные функции
+    // =============================
     function clickIfNotOpen(el, selectorForToggle){
       if(!el) return;
       if(!el.classList.contains('open')){
@@ -1761,6 +1766,7 @@ button:active .icon-lines span { display:block; width:18px; height:3.5px; backgr
         if(hdr && typeof hdr.click === 'function') hdr.click();
       }
     }
+
     function clickIfOpen(el, selectorForToggle){
       if(!el) return;
       if(el.classList.contains('open')){
@@ -1769,40 +1775,72 @@ button:active .icon-lines span { display:block; width:18px; height:3.5px; backgr
       }
     }
 
-    const openAll = function(){
-      const cards = Array.from(document.querySelectorAll('.card'));
-      cards.forEach(card => {
-        clickIfNotOpen(card, '[data-role=\"card-toggle\"]');
-        card.querySelectorAll('.step').forEach(step => clickIfNotOpen(step, '.step-title'));
+    // =============================
+    // 🔹 Управление карточками
+    // =============================
+    function openCard(card){
+      clickIfNotOpen(card, '[data-role="card-toggle"]');
+      card.querySelectorAll('.step').forEach(step => clickIfNotOpen(step, '.step-title'));
+    }
+
+    function closeCard(card){
+      card.querySelectorAll('.step').forEach(step => clickIfOpen(step, '.step-title'));
+      clickIfOpen(card, '[data-role="card-toggle"]');
+    }
+
+    // =============================
+    // 🔹 Основная логика одной кнопки
+    // =============================
+    let allOpen = false;
+
+    function wireToggleButton(){
+      const toggleAllBtn = document.getElementById('toggleAllBtn');
+      if (!toggleAllBtn) return;
+
+      toggleAllBtn.addEventListener('click', () => {
+        // Небольшая анимация нажатия
+        toggleAllBtn.classList.add('pressed');
+        setTimeout(() => toggleAllBtn.classList.remove('pressed'), 150);
+
+        // Находим все карточки
+        const cards = document.querySelectorAll('.card');
+        if (!allOpen) {
+          cards.forEach(c => openCard(c));
+        } else {
+          cards.forEach(c => closeCard(c));
+        }
+
+        allOpen = !allOpen;
+
+        // Визуальная смена иконки
+        const icon = toggleAllBtn.querySelector('.icon-lines');
+        if(icon) icon.className = allOpen ? 'icon-lines tight' : 'icon-lines loose';
       });
-      try{ if(window.__osn && typeof window.__osn.openCardById==='function'){ Object.keys(window.__osn.openCardById).forEach(()=>{}); } }catch(e){}
-    };
-    const closeAll = function(){
-      const cards = Array.from(document.querySelectorAll('.card'));
-      cards.forEach(card => {
-        card.querySelectorAll('.step').forEach(step => clickIfOpen(step, '.step-title'));
-        clickIfOpen(card, '[data-role=\"card-toggle\"]');
-      });
+    }
+
+    // =============================
+    // 🔹 Инициализация
+    // =============================
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', wireToggleButton);
+    } else {
+      wireToggleButton();
+    }
+
+    // =============================
+    // 🔹 Глобальный доступ (если нужно)
+    // =============================
+    window.__osn = window.__osn || {};
+    window.__osn.toggleAll = function(){
+      const btn = document.getElementById('toggleAllBtn');
+      if(btn) btn.click();
     };
 
-    function wireButtons(){
-      const openBtn = document.getElementById('openAllBtn');
-      const closeBtn = document.getElementById('closeAllBtn');
-      if(openBtn) openBtn.addEventListener('click', function(e){ e.preventDefault(); openAll(); });
-      if(closeBtn) closeBtn.addEventListener('click', function(e){ e.preventDefault(); closeAll(); });
-    }
-    if(document.readyState === 'loading'){
-      document.addEventListener('DOMContentLoaded', wireButtons);
-    } else {
-      wireButtons();
-    }
-    window.__osn = window.__osn || {};
-    window.__osn.openAll = openAll;
-    window.__osn.closeAll = closeAll;
-  }catch(err){ console && console.warn && console.warn('open-close-all-wires error', err); }
+  }catch(err){
+    console && console.warn && console.warn('open-close-all-wires error', err);
+  }
 })();
 </script>
-
 
 <script id="open-close-press-wiring">
 (function(){
