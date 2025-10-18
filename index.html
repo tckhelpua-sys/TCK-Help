@@ -554,10 +554,8 @@ button:active .icon-lines span { display:block; width:18px; height:3.5px; backgr
   <div class="search" role="search" aria-label="Швидкий пошук">
     <input id="search" placeholder="Пошук..." aria-label="Пошук по довіднику" />
     <div class="count" id="searchCount" aria-live="polite">Показано: всі</div> 
-
   <div style="display:flex;gap:8px;align-items:center;">
-    <button id="openAllBtn" aria-label="Відкрити всі" title="Відкрити всі" style="background:#fff;border:2px solid var(--accent);color:var(--accent);width:42px;height:42px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,0.1);"><div class="icon-lines loose"><span></span><span></span><span></span></div></button>
-    <button id="closeAllBtn" aria-label="Згорнути всі" title="Згорнути всі" style="background:#fff;border:2px solid var(--accent);color:var(--accent);width:42px;height:42px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,0.1);"><div class="icon-lines tight"><span></span><span></span><span></span></div></button>
+    <button id="toggleAllBtn" aria-label="Відкрити всі" title="Відкрити всі" style="background:#fff;border:2px solid var(--accent);color:var(--accent);width:42px;height:42px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,0.1);"><div class="icon-lines loose"><span></span><span></span><span></span></div></button>
   </div>
 </div>
 
@@ -1785,11 +1783,34 @@ button:active .icon-lines span { display:block; width:18px; height:3.5px; backgr
       });
     };
 
+    const toggleAll = function(){
+      const allCards = Array.from(document.querySelectorAll('.card'));
+      const allOpen = allCards.every(card => card.classList.contains('open'));
+      if(allOpen){
+        closeAll();
+        updateToggleButton(false);
+      } else {
+        openAll();
+        updateToggleButton(true);
+      }
+    };
+
+    function updateToggleButton(isOpen){
+      const btn = document.getElementById('toggleAllBtn');
+      if(!btn) return;
+      const icon = btn.querySelector('.icon-lines');
+      const label = isOpen ? 'Згорнути всі' : 'Відкрити всі';
+      btn.setAttribute('aria-label', label);
+      btn.setAttribute('title', label);
+      if(icon){
+        icon.classList.toggle('loose', !isOpen);
+        icon.classList.toggle('tight', isOpen);
+      }
+    }
+
     function wireButtons(){
-      const openBtn = document.getElementById('openAllBtn');
-      const closeBtn = document.getElementById('closeAllBtn');
-      if(openBtn) openBtn.addEventListener('click', function(e){ e.preventDefault(); openAll(); });
-      if(closeBtn) closeBtn.addEventListener('click', function(e){ e.preventDefault(); closeAll(); });
+      const toggleBtn = document.getElementById('toggleAllBtn');
+      if(toggleBtn) toggleBtn.addEventListener('click', function(e){ e.preventDefault(); toggleAll(); });
     }
     if(document.readyState === 'loading'){
       document.addEventListener('DOMContentLoaded', wireButtons);
@@ -1830,8 +1851,7 @@ button:active .icon-lines span { display:block; width:18px; height:3.5px; backgr
     }
 
     function wireAll(){
-      bindPress('openAllBtn');
-      bindPress('closeAllBtn');
+      bindPress('toggleAllBtn');
     }
 
     if(document.readyState === 'loading'){
