@@ -499,22 +499,20 @@ button:active .icon-lines span { display:block; width:18px; height:3.5px; backgr
 
 <style id="open-close-press-style">
 /* Press/tap visual effect for openAllBtn and closeAllBtn */
-#openAllBtn, #closeAllBtn {
+#toggleAllBtn {
   transition: transform 0.12s ease, box-shadow 0.12s ease;
   -webkit-tap-highlight-color: transparent;
 }
-#openAllBtn.pressed, #closeAllBtn.pressed,
-#openAllBtn:active, #closeAllBtn:active {
+#toggleAllBtn.pressed,
+#toggleAllBtn:active {
   transform: translateY(1px) scale(0.98);
   box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
 }
-#openAllBtn .icon-lines span, #closeAllBtn .icon-lines span {
+#toggleAllBtn .icon-lines span {
   transition: background-color 0.12s ease, transform 0.12s ease;
 }
-#openAllBtn.pressed .icon-lines span,
-#closeAllBtn.pressed .icon-lines span,
-#openAllBtn:active .icon-lines span,
-#closeAllBtn:active .icon-lines span {
+#toggleAllBtn.pressed .icon-lines span,
+#toggleAllBtn:active .icon-lines span {
   background-color: #333 !important;
   transform: scaleX(0.98);
 }
@@ -555,7 +553,7 @@ button:active .icon-lines span { display:block; width:18px; height:3.5px; backgr
     <input id="search" placeholder="Пошук..." aria-label="Пошук по довіднику" />
     <div class="count" id="searchCount" aria-live="polite">Показано: всі</div> 
   <div style="display:flex;gap:8px;align-items:center;">
-    <button id="toggleAllBtn" aria-label="Відкрити всі" title="Відкрити всі" style="background:#fff;border:2px solid var(--accent);color:var(--accent);width:42px;height:42px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,0.1);"><div class="icon-lines loose"><span></span><span></span><span></span></div></button>
+    <button id="toggleAllBtn" aria-label="Відкрити всі" title="Відкрити всі" style="background:#fff;border:2px solid var(--accent);color:var(--accent);width:42px;height:42px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,0.1);"><div class="icon-lines tight"><span></span><span></span><span></span></div></button>
   </div>
 </div>
 
@@ -1803,8 +1801,8 @@ button:active .icon-lines span { display:block; width:18px; height:3.5px; backgr
       btn.setAttribute('aria-label', label);
       btn.setAttribute('title', label);
       if(icon){
-        icon.classList.toggle('loose', !isOpen);
-        icon.classList.toggle('tight', isOpen);
+        icon.classList.toggle('loose', isOpen);
+        icon.classList.toggle('tight', !isOpen);
       }
     }
 
