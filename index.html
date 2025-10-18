@@ -556,13 +556,9 @@ button:active .icon-lines span { display:block; width:18px; height:3.5px; backgr
     <div class="count" id="searchCount" aria-live="polite">Показано: всі</div> 
 
   <div style="display:flex;gap:8px;align-items:center;">
-  <button id="toggleAllBtn" aria-label="Розгорнути/згорнути всі" title="Розгорнути/згорнути всі"
-    style="background:#fff;border:2px solid var(--accent);color:var(--accent);
-           width:42px;height:42px;border-radius:8px;cursor:pointer;
-           display:inline-flex;align-items:center;justify-content:center;
-           box-shadow:0 2px 4px rgba(0,0,0,0.1);">
-    <div class="icon-lines loose"><span></span><span></span><span></span></div>
-  </button>
+    <button id="openAllBtn" aria-label="Відкрити всі" title="Відкрити всі" style="background:#fff;border:2px solid var(--accent);color:var(--accent);width:42px;height:42px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,0.1);"><div class="icon-lines loose"><span></span><span></span><span></span></div></button>
+    <button id="closeAllBtn" aria-label="Згорнути всі" title="Згорнути всі" style="background:#fff;border:2px solid var(--accent);color:var(--accent);width:42px;height:42px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,0.1);"><div class="icon-lines tight"><span></span><span></span><span></span></div></button>
+  </div>
 </div>
 
 <main class="container" id="cards" aria-live="polite">
@@ -1755,111 +1751,98 @@ button:active .icon-lines span { display:block; width:18px; height:3.5px; backgr
 </script>
 
 
-<script id="toggle-all-wiring">
-(function() {
-  try {
-    // === ЗАМІНА для openAll/closeAll + wireButtons ===
-    // Універсальний toggle для однієї кнопки #toggleAllBtn
+<script id="open-close-all-wires">
+(function(){
+  try{
+    function clickIfNotOpen(el, selectorForToggle){
+      if(!el) return;
+      if(!el.classList.contains('open')){
+        const hdr = el.querySelector(selectorForToggle);
+        if(hdr && typeof hdr.click === 'function') hdr.click();
+      }
+    }
+    function clickIfOpen(el, selectorForToggle){
+      if(!el) return;
+      if(el.classList.contains('open')){
+        const hdr = el.querySelector(selectorForToggle);
+        if(hdr && typeof hdr.click === 'function') hdr.click();
+      }
+    }
 
-    function toggleAllExpand(open) {
+    const openAll = function(){
       const cards = Array.from(document.querySelectorAll('.card'));
       cards.forEach(card => {
-        const cardId = card.getAttribute('data-id');
-
-        if (open) {
-          // Відкрити всі кроки
-          card.querySelectorAll('.step').forEach(step => {
-            if (!step.classList.contains('open')) {
-              try { openStep(step, true); } catch (e) {}
-            }
-          });
-
-          // Відкрити картку
-          if (!card.classList.contains('open')) {
-            try { openCard(card, true); } catch (e) {}
-          }
-
-          if (state && cardId) state.openCards[cardId] = true;
-        } else {
-          // Закрити кроки
-          card.querySelectorAll('.step').forEach(step => {
-            if (step.classList.contains('open')) {
-              try { closeStep(step, true); } catch (e) {}
-            }
-          });
-
-          // Закрити картку
-          if (card.classList.contains('open')) {
-            try { closeCard(card, true); } catch (e) {}
-          }
-
-          if (state && cardId) delete state.openCards[cardId];
-        }
+        clickIfNotOpen(card, '[data-role=\"card-toggle\"]');
+        card.querySelectorAll('.step').forEach(step => clickIfNotOpen(step, '.step-title'));
       });
-
-      try { if (typeof saveState === 'function') saveState(); } catch (e) {}
-    }
-
-    function areAllCardsOpen() {
+      try{ if(window.__osn && typeof window.__osn.openCardById==='function'){ Object.keys(window.__osn.openCardById).forEach(()=>{}); } }catch(e){}
+    };
+    const closeAll = function(){
       const cards = Array.from(document.querySelectorAll('.card'));
-      if (!cards.length) return false;
-      return cards.every(c => c.classList.contains('open'));
+      cards.forEach(card => {
+        card.querySelectorAll('.step').forEach(step => clickIfOpen(step, '.step-title'));
+        clickIfOpen(card, '[data-role=\"card-toggle\"]');
+      });
+    };
+
+    function wireButtons(){
+      const openBtn = document.getElementById('openAllBtn');
+      const closeBtn = document.getElementById('closeAllBtn');
+      if(openBtn) openBtn.addEventListener('click', function(e){ e.preventDefault(); openAll(); });
+      if(closeBtn) closeBtn.addEventListener('click', function(e){ e.preventDefault(); closeAll(); });
     }
-
-    function wireToggleButton() {
-      const toggleBtn = document.getElementById('toggleAllBtn');
-      if (!toggleBtn) return;
-
-      let allOpen = areAllCardsOpen();
-      toggleBtn.setAttribute('aria-pressed', allOpen ? 'true' : 'false');
-
-      const iconLines = toggleBtn.querySelector('.icon-lines');
-      if (iconLines)
-        iconLines.className = `icon-lines ${allOpen ? 'tight' : 'loose'}`;
-
-      const onClick = (e) => {
-        e.preventDefault();
-        allOpen = !allOpen;
-        toggleBtn.classList.add('pressed');
-        setTimeout(() => toggleBtn.classList.remove('pressed'), 120);
-
-        toggleBtn.setAttribute('aria-pressed', allOpen ? 'true' : 'false');
-
-        try { toggleAllExpand(allOpen); } catch (err) {
-          console.warn('toggleAllExpand error', err);
-        }
-
-        const iconLines = toggleBtn.querySelector('.icon-lines');
-        if (iconLines)
-          iconLines.className = `icon-lines ${allOpen ? 'tight' : 'loose'}`;
-      };
-
-      toggleBtn.removeEventListener('click', onClick);
-      toggleBtn.addEventListener('click', onClick);
-
-      window.__osn = window.__osn || {};
-      window.__osn.toggleAll = function(forceOpen) {
-        if (typeof forceOpen === 'boolean') {
-          const need = forceOpen;
-          const currently = areAllCardsOpen();
-          if (need !== currently) {
-            toggleBtn.click();
-          }
-        } else {
-          toggleBtn.click();
-        }
-      };
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', wireToggleButton);
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', wireButtons);
     } else {
-      wireToggleButton();
+      wireButtons();
+    }
+    window.__osn = window.__osn || {};
+    window.__osn.openAll = openAll;
+    window.__osn.closeAll = closeAll;
+  }catch(err){ console && console.warn && console.warn('open-close-all-wires error', err); }
+})();
+</script>
+
+
+<script id="open-close-press-wiring">
+(function(){
+  try{
+    function bindPress(id){
+      const el = document.getElementById(id);
+      if(!el) return;
+      if(el.__pressBound) return;
+      el.__pressBound = true;
+      // touch
+      el.addEventListener('touchstart', function(){ el.classList.add('pressed'); }, {passive:true});
+      el.addEventListener('touchend', function(){ el.classList.remove('pressed'); }, {passive:true});
+      el.addEventListener('touchcancel', function(){ el.classList.remove('pressed'); }, {passive:true});
+      // mouse
+      el.addEventListener('mousedown', function(){ el.classList.add('pressed'); });
+      el.addEventListener('mouseup', function(){ el.classList.remove('pressed'); });
+      el.addEventListener('mouseleave', function(){ el.classList.remove('pressed'); });
+      // keyboard activation (space/enter)
+      el.addEventListener('keydown', function(e){
+        if(e.key === ' ' || e.key === 'Enter'){ el.classList.add('pressed'); }
+      });
+      el.addEventListener('keyup', function(e){
+        if(e.key === ' ' || e.key === 'Enter'){ el.classList.remove('pressed'); }
+      });
     }
 
-  } catch (err) {
-    console.warn('toggle-all-wiring error', err);
-  }
+    function wireAll(){
+      bindPress('openAllBtn');
+      bindPress('closeAllBtn');
+    }
+
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', wireAll);
+    } else {
+      wireAll();
+    }
+    // re-wire if DOM changes (in case buttons are replaced)
+    const mo = new MutationObserver(function(){ wireAll(); });
+    mo.observe(document.documentElement || document.body, { childList:true, subtree:true });
+  }catch(e){ console && console.warn && console.warn('open-close-press-wiring', e); }
 })();
 </script>
 
